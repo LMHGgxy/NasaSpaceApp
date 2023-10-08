@@ -1,0 +1,19 @@
+---
+import TextAbout from './text/about.astro';
+import Space from './space/space.astro';
+---
+<div class="home">
+    <TextAbout />
+    <Space />
+</div>
+<style>
+    .home{
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        bottom: 0;
+    }
+</style>

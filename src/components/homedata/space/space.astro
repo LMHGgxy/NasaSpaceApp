@@ -1,0 +1,161 @@
+<div class="box-space" id="box-space">
+  <div class="information">
+    A black hole, is a region in spacetime with extremely intense gravity, so
+    powerful that nothing, not even light, can escape its influence once it
+    crosses a critical point known as the event horizon. Black holes can form
+    when a massive star collapses under its own gravity at the end of its life
+    cycle and can vary in size from small ones with masses similar to stars to
+    supermassive ones with millions or even billions of times the mass of our
+    sun. They are enigmatic and fascinating objects that challenge our current
+    understanding of physics and the universe.
+  </div>
+</div>
+<style>
+  .box-space {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+  .information {
+    min-width: 18vw;
+    min-height: 18vw;
+    max-width: 24vw;
+    box-sizing: border-box;
+    place-items: center;
+    display: none;
+    padding: 1vw;
+    background-color: rgb(83, 83, 83);
+    position: absolute;
+    top: 50%;
+    left: 80%;
+    border-radius: 2vw;
+    color: white;
+  }
+</style>
+
+<script>
+  import * as THREE from "three";
+  import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+  import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+  import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+  import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+
+  const objToRender = "SPACE";
+  const MODEL_PATH = `3D MODELS/${objToRender}/scene.gltf`;
+
+  const boxspace = document.getElementById("box-space");
+  const scene = new THREE.Scene();
+  const gridSize = 10;
+  const gridDivisions = 10;
+  const gridHelper = new THREE.GridHelper(gridSize, gridDivisions);
+
+  gridHelper.position.y = -0.5;
+
+  scene.add(gridHelper);
+
+  const camera = new THREE.PerspectiveCamera(
+    80,
+    boxspace.clientWidth / boxspace.clientHeight,
+    0.5,
+    1000
+  );
+  const renderer = new THREE.WebGLRenderer({ alpha: true });
+  const loader = new GLTFLoader();
+  camera.position.z = 5;
+  const directional = new THREE.DirectionalLight(0xffffff, 2);
+  directional.position.set(500, 500, 500);
+  scene.add(directional);
+  renderer.setSize(boxspace.clientWidth, boxspace.clientHeight);
+  boxspace.appendChild(renderer.domElement);
+
+  const composer = new EffectComposer(renderer);
+  const renderPass = new RenderPass(scene, camera);
+  composer.addPass(renderPass);
+
+  let object;
+  loader.load(
+    MODEL_PATH,
+    function (gltf) {
+      object = gltf.scene;
+
+      const bloomLayer = new THREE.Layers();
+      bloomLayer.set(1);
+
+      const bloomPass = new UnrealBloomPass(
+        new THREE.Vector2(boxspace.clientWidth, boxspace.clientHeight),
+        0.3,
+        0.5,
+        0.2
+      );
+      bloomPass.selectedObjects = [];
+
+      bloomPass.selectedObjects.push(object);
+
+      composer.addPass(bloomPass);
+      scene.add(object);
+      startAnimation();
+    },
+    function (xhr) {
+      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    },
+    function (error) {
+      console.error(error);
+    }
+  );
+
+  function onWindowResize() {
+    const newWidth = boxspace.clientWidth;
+    const newHeight = boxspace.clientHeight;
+
+    camera.aspect = newWidth / newHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(newWidth, newHeight);
+
+    composer.setSize(newWidth, newHeight);
+  }
+
+  window.addEventListener("resize", onWindowResize);
+  const info = document.querySelector(".information") as HTMLElement;
+  document.addEventListener("mousemove", (event) => {
+    // Obtén las coordenadas del mouse
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+
+    // Establece la posición de la información para que siga al cursor
+    info.style.left = mouseX + 'px';
+    info.style.top = mouseY + 'px';
+  });
+  boxspace.addEventListener("mouseenter", (event) => {
+    // Obtén las coordenadas del mouse
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+
+    // Establece la posición de la información a la derecha del cursor
+    info.style.left = mouseX + "px";
+    info.style.top = mouseY + "px";
+
+    // Muestra la información
+    info.style.display = "flex";
+  });
+
+  // También puedes agregar un evento "mouseleave" para ocultar la información cuando el mouse se aleje
+  boxspace.addEventListener("mouseleave", () => {
+    info.style.display = "none";
+  });
+
+  let rotationSpeedY = 0.005;
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    if (object) {
+      object.rotation.y += rotationSpeedY;
+    }
+
+    composer.render();
+  }
+
+  function startAnimation() {
+    animate();
+  }
+</script>

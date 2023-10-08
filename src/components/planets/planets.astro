@@ -1,0 +1,102 @@
+<div class="planets" id="TIERRITA"></div>
+
+<script>
+  import * as THREE from "three";
+  import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+  const objToRender = "EARTH";
+  const objLuna = "LUNA";
+  const MODEL_PATH_LUNA = `3D MODELS/${objLuna}/scene.gltf`;
+  const MODEL_PATH = `3D MODELS/${objToRender}/one/scene.gltf`;
+  const ROTATION_SPEED = 0.004;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(
+    115,
+    window.innerWidth / window.innerHeight,
+    0.1,
+    50000
+  );
+  const renderer = new THREE.WebGLRenderer({ alpha: true });
+  const loader = new GLTFLoader();
+  camera.position.z = 1550;
+
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.getElementById("TIERRITA").appendChild(renderer.domElement);
+
+  let object;
+  const loaderLuna = new GLTFLoader();
+
+  let moonObject;
+
+  loader.load(
+    MODEL_PATH,
+    function (gltf) {
+      object = gltf.scene;
+      scene.add(object);
+      console.log(object);
+
+      startAnimation();
+    },
+    function (xhr) {
+      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    },
+    function (error) {
+      console.error(error);
+    }
+  );
+  loaderLuna.load(
+    MODEL_PATH_LUNA,
+    function (gltf) {
+      moonObject = gltf.scene;
+      object.add(moonObject);
+      const mooonambient = new THREE.AmbientLight(0xffffff, 10);
+      moonObject.add(mooonambient);
+      
+      const moonLight = new THREE.DirectionalLight(0xffffff, 25);
+      moonLight.position.set(0, 0, 0);
+      moonObject.add(moonLight);
+      moonObject.scale.x = 0.5;
+      moonObject.scale.y = 0.5;
+      moonObject.scale.z = 0.5;
+      moonObject.position.x = -950;
+    },
+    function (xhr) {
+      console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
+    },
+    function (error) {
+      console.error(error);
+    }
+  );
+  window.addEventListener("resize", function () {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    if (object) {
+      object.rotation.y += ROTATION_SPEED;
+    }
+    if (moonObject) {
+      moonObject.rotateY(0.007);
+    }
+    renderer.render(scene, camera);
+  }
+
+  function startAnimation() {
+    animate();
+  }
+</script>
+
+<style>
+  .planets {
+    width: 100%;
+    height: 100vh;
+    bottom: 0;
+    position: absolute;
+    display: grid;
+    place-items: center;
+  }
+</style>
