@@ -1,0 +1,11 @@
+Model Information:
+* title:	Earth
+* source:	https://sketchfab.com/3d-models/earth-9d0089fa94b14b70a868fb5e472e9c5d
+* author:	tiunov.se (https://sketchfab.com/tiunov.se)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Earth" (https://sketchfab.com/3d-models/earth-9d0089fa94b14b70a868fb5e472e9c5d) by tiunov.se (https://sketchfab.com/tiunov.se) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
