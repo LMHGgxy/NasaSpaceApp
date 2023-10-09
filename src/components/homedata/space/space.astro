@@ -57,14 +57,13 @@
     80,
     boxspace.clientWidth / boxspace.clientHeight,
     0.5,
-    1000
+    30000
   );
+
   const renderer = new THREE.WebGLRenderer({ alpha: true });
   const loader = new GLTFLoader();
   camera.position.z = 5;
-  const directional = new THREE.DirectionalLight(0xffffff, 2);
-  directional.position.set(500, 500, 500);
-  scene.add(directional);
+
   renderer.setSize(boxspace.clientWidth, boxspace.clientHeight);
   boxspace.appendChild(renderer.domElement);
 
@@ -116,31 +115,25 @@
 
   window.addEventListener("resize", onWindowResize);
   const info = document.querySelector(".information") as HTMLElement;
+  
   document.addEventListener("mousemove", (event) => {
-    // Obtén las coordenadas del mouse
     const mouseX = event.clientX;
     const mouseY = event.clientY;
-
-    // Establece la posición de la información para que siga al cursor
     info.style.left = mouseX + 'px';
     info.style.top = mouseY + 'px';
   });
   boxspace.addEventListener("mouseenter", (event) => {
-    // Obtén las coordenadas del mouse
     const mouseX = event.clientX;
     const mouseY = event.clientY;
-
-    // Establece la posición de la información a la derecha del cursor
     info.style.left = mouseX + "px";
     info.style.top = mouseY + "px";
-
-    // Muestra la información
     info.style.display = "flex";
   });
-
-  // También puedes agregar un evento "mouseleave" para ocultar la información cuando el mouse se aleje
   boxspace.addEventListener("mouseleave", () => {
     info.style.display = "none";
+  });
+  boxspace.addEventListener("click", () => {
+    window.open("https://www.semanticscholar.org/paper/Black-holes-in-general-relativity-Hawking/2c97c0871315c60b8404c4d81c417f6366752824");
   });
 
   let rotationSpeedY = 0.005;

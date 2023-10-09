@@ -1,27 +1,78 @@
-<div class="planets" id="TIERRITA"></div>
+<div class="planets" id="TIERRITA">
+  <div class="earth-moon-info" id="info">
+    <h2>La Tierra</h2>
+    <p>
+      La Tierra es el tercer planeta del sistema solar y es el único conocido
+      por albergar vida. Está formada por una variedad de ecosistemas, desde
+      vastos océanos hasta altas montañas. Su atmósfera está compuesta
+      principalmente de oxígeno y nitrógeno, lo que permite la existencia de una
+      diversidad de formas de vida. La Tierra es un lugar único en el universo y
+      es esencial para la supervivencia de la humanidad y muchas otras especies.
+    </p>
 
+    <h2>La Luna</h2>
+    <p>
+      La Luna es el único satélite natural de la Tierra y ha fascinado a la
+      humanidad durante siglos. Es un cuerpo celeste sin atmósfera significativa
+      y su superficie está cubierta de cráteres, montañas y llanuras. La Luna
+      juega un papel importante en las mareas de la Tierra y ha sido un objetivo
+      de exploración espacial. Fue visitada por astronautas en varias misiones
+      del programa Apollo en la década de 1960 y 1970. La Luna sigue siendo un
+      objeto de estudio y una fuente de inspiración para la ciencia y la
+      exploración espacial.
+    </p>
+  </div>
+</div>
+<style>
+  .planets {
+    width: 100%;
+    height: 100vh;
+    bottom: 0;
+    position: absolute;
+    display: grid;
+    place-items: center;
+  }
+  .earth-moon-info{
+    position: absolute;
+    background-color: rgba(165, 165, 165, 0.678);
+    display: none;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1vw;
+    min-width: 20vw;
+    max-width: 40vw;
+    max-height: 40vw;
+    padding: 1vw;
+    border-radius: 1vw;
+    color: white;
+  }
+</style>
 <script>
   import * as THREE from "three";
   import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+  import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+  import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+  import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+
   const objToRender = "EARTH";
   const objLuna = "LUNA";
   const MODEL_PATH_LUNA = `3D MODELS/${objLuna}/scene.gltf`;
   const MODEL_PATH = `3D MODELS/${objToRender}/scene.gltf`;
   const ROTATION_SPEED = 0.004;
-
+  const boxspace = document.getElementById("TIERRITA");
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(
-    115,
+    100,
     window.innerWidth / window.innerHeight,
     0.1,
-    50000
+    80000
   );
   const renderer = new THREE.WebGLRenderer({ alpha: true });
   const loader = new GLTFLoader();
-  camera.position.z = 1550;
+  camera.position.z = 1500;
 
   renderer.setSize(window.innerWidth, window.innerHeight);
-  document.getElementById("TIERRITA").appendChild(renderer.domElement);
+  boxspace.appendChild(renderer.domElement);
 
   let object;
   const loaderLuna = new GLTFLoader();
@@ -49,12 +100,8 @@
     function (gltf) {
       moonObject = gltf.scene;
       object.add(moonObject);
-      const mooonambient = new THREE.AmbientLight(0xffffff, 10);
-      moonObject.add(mooonambient);
-      
-      const moonLight = new THREE.DirectionalLight(0xffffff, 25);
-      moonLight.position.set(0, 0, 0);
-      moonObject.add(moonLight);
+      const moonambient = new THREE.AmbientLight(0xffffff, 5);
+      scene.add(moonambient);
       moonObject.scale.x = 0.5;
       moonObject.scale.y = 0.5;
       moonObject.scale.z = 0.5;
@@ -67,11 +114,41 @@
       console.error(error);
     }
   );
+
   window.addEventListener("resize", function () {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
+  const composer = new EffectComposer(renderer);
+  const renderPass = new RenderPass(scene, camera);
+  composer.addPass(renderPass);
+  const bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    0.3,
+    1,
+    0.1
+  );
+  composer.addPass(bloomPass);
+  const starGeometry = new THREE.BufferGeometry();
+  const starMaterial = new THREE.PointsMaterial({
+    size: 0.5,
+    color: 0xffffff,
+  });
+  const starsVertices = [];
+  for (let i = 0; i < 9000; i++) {
+    const x = (Math.random() - 0.5) * 20000;
+    const y = (Math.random() - 0.5) * 20000;
+    const z = (Math.random() - 0.5) * 20000;
+    starsVertices.push(x, y, z);
+  }
+
+  starGeometry.setAttribute(
+    "position",
+    new THREE.Float32BufferAttribute(starsVertices, 3)
+  );
+  const stars = new THREE.Points(starGeometry, starMaterial);
+  scene.add(stars);
 
   function animate() {
     requestAnimationFrame(animate);
@@ -82,21 +159,29 @@
     if (moonObject) {
       moonObject.rotateY(0.007);
     }
-    renderer.render(scene, camera);
+
+    stars.material.opacity = Math.random() * 0.5 + 0.5;
+    composer.render();
   }
+  const info = document.getElementById("info") as HTMLElement;
+  document.addEventListener("mousemove", (event) => {
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+    info.style.left = mouseX + 'px';
+    info.style.top = mouseY + 'px';
+  });
+  boxspace.addEventListener("mouseenter", (event) => {
+    const mouseX = event.clientX;
+    const mouseY = event.clientY;
+    info.style.left = mouseX + "px";
+    info.style.top = mouseY + "px";
+    info.style.display = "flex";
+  });
+  boxspace.addEventListener("mouseleave", () => {
+    info.style.display = "none";
+  });
 
   function startAnimation() {
     animate();
   }
 </script>
-
-<style>
-  .planets {
-    width: 100%;
-    height: 100vh;
-    bottom: 0;
-    position: absolute;
-    display: grid;
-    place-items: center;
-  }
-</style>
